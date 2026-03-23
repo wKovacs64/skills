@@ -23,22 +23,56 @@ Convert a project from TypeScript path aliases (tsconfig.json) to native Node.js
 
 4. **Convert all imports** in source files:
    - Find all files using old alias pattern (e.g., `~/`)
+     - Include documentation and examples (e.g., multiple occurrences in @app/assets/svg-icons/README.md - one in code snippet and one in documentation above it)
    - Replace with new subpath import pattern (e.g., `#/app/`)
    - Handle all import types: default, named, type-only, dynamic, re-exports
-   - **IMPORTANT: Use relative `./` only for same directory or subdirectories**:
-     - Use `./foo` or `./bar/baz` (same dir or deeper) Γ£ô
-     - Use `#/app/foo` instead of `../foo` (parent dir) Γ£ô
-     - IDEs use `#/` when not relative to current dir, `./` when it is
+   - **Check for imports that bypassed the alias** (e.g., `from 'app/foo'` without `~/`)
+     - These won't be caught by the bulk `~/` replacement
+     - Search for `from 'app/` or `from "app/` and convert to `#/app/`
+   - **Convert `../` imports** to use `#/` (e.g., `from '../_app.foo/route'` ΓåÆ `#/app/routes/_app.foo/route`)
+   - **Dynamic imports in client/browser code**:
+     - Do NOT convert `../` paths inside `import()` calls that run in the browser
+     - Browser runtime doesn't support Node.js subpath imports
+     - Example: keep `import('../mocks/browser')` as-is in client entry files
 
-5. **Remove unnecessary packages** (if present):
+5. **Fix imports that should use `./` instead of `#/`** (REQUIRED - do not skip):
+
+   The rule: Use `./` for same-directory imports and for root-level files importing subdirectories. Use `#/` only for cross-directory imports.
+
+   **a) Root-level app files** (files directly in `app/` like `root.tsx`, `entry.client.tsx`):
+   - These should use `./` for app subdirectories, not `#/app/`
+   - Check: `grep -l "from '#/app/" app/*.{ts,tsx} 2>/dev/null`
+   - Fix any matches: `#/app/core/utils` ΓåÆ `./core/utils`
+
+   **b) Same-directory imports** (files importing from their own directory):
+   - A file should never import from its own directory path using `#/`
+   - Use this script to find violations:
+     ```bash
+     find app -name '*.ts' -o -name '*.tsx' | while read file; do
+       dir=$(dirname "$file" | sed 's|^\./||')
+       # Convert dir path to import pattern (e.g., app/core -> #/app/core/)
+       pattern="from ['\"]#/$dir/"
+       if grep -qE "$pattern" "$file" 2>/dev/null; then
+         echo "$file imports from own directory using #/"
+         grep -E "$pattern" "$file"
+       fi
+     done
+     ```
+   - Fix any matches: `#/app/<same-dir>/foo` ΓåÆ `./foo`
+
+6. **Remove unnecessary packages** (if present):
    - `npm uninstall vite-tsconfig-paths tsconfig-paths`
    - Remove `tsconfigPaths()` from vite.config.ts if present
    - Vite 5+ handles Node.js subpath imports natively
 
-6. **Verify the conversion**:
+7. **Verify the conversion**:
    - Run typecheck
+   - Run lint
    - Run build
    - Run tests if available
+
+8. **Format the code**:
+   - Run `npm run format` to format the code
 
 ## Example
 
