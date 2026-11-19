@@ -39,7 +39,7 @@ Each smell names its usual disposition.
 - **Stale** → Delete: contradicts the current code, names things that no longer exist, or cites a superseded decision. Often sits beside dead code.
 - **Session note** → Delete: written for the agent's own session or a future one, or narrates change history ("now uses", "previously", "moved from", "per review"). Git holds history.
 - **Commented-out code** → Delete: git holds it.
-- **TODO** (FIXME, HACK) → Delete when it cites a tracked issue; otherwise defer, and delete it once filed.
+- **TODO** (FIXME, HACK) → Delete when it cites an issue in this repo's tracker; otherwise defer, and delete it once filed. An upstream issue does not count: the local issue links it, and the workaround beside it is a Library quirk.
 - **Duplicate** → Encode: the same explanation copied to several sites, usually because the code it explains is copied too.
 - **Library quirk** → Encode: explains surprising third-party behavior.
 - **Constraint** → Encode: an ordering, race, or invariant rule the code must uphold.
