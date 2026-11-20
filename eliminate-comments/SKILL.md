@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Eliminate comments
 
-Every comment is surface the agent must keep true on every later change, and most are not worth it: they restate the code, go stale, leave session notes that outlive the session, or serve as a **fig leaf**: an explanation that licenses a workaround instead of fixing the design. Treat each comment as a **smell**: find what it compensates for, fix that, then delete the comment. The target is zero comments in scope; a survivor must justify itself.
+Every comment is surface the agent must keep true on every later change, and most are not worth it: they restate the code, go stale, leave session notes that outlive the session, or serve as an **excuse**: an explanation that licenses a workaround instead of fixing the design. Treat each comment as a **smell**: find what it compensates for, fix that, then delete the comment. The target is zero comments in scope; a survivor must justify itself.
 
 ## Steps
 
@@ -34,7 +34,7 @@ Done when every ledger row is done or deferred with a reason, the step 5 invento
 
 Each smell names its usual disposition.
 
-- **Echo** → Delete: restates what the code does, or what a test name already says. Includes section banners and `// Arrange / Act / Assert`.
+- **Tautology** → Delete: restates what the code does, or what a test name already says. Includes section banners and `// Arrange / Act / Assert`.
 - **Trivia** → Delete: true and not derivable from the code, but has no named bug.
 - **Stale** → Delete: contradicts the current code, names things that no longer exist, or cites a superseded decision. Often sits beside dead code.
 - **Session note** → Delete: written for the agent's own session or a future one, or narrates change history ("now uses", "previously", "moved from", "per review"). Git holds history.
@@ -43,7 +43,7 @@ Each smell names its usual disposition.
 - **Duplicate** → Encode: the same explanation copied to several sites, usually because the code it explains is copied too.
 - **Library quirk** → Encode: explains surprising third-party behavior.
 - **Constraint** → Encode: an ordering, race, or invariant rule the code must uphold.
-- **Fig leaf** → Redesign: the comment beside a workaround, including a suppression. It marks where the code should have been designed differently, not explained.
+- **Excuse** → Redesign: the comment beside a workaround, including a suppression. It marks where the code should have been designed differently, not explained.
 - **Decision** → Record: a durable cross-cutting contract or trade-off: a persistence format, defaults tuned by hand, a platform limit that forced the design.
 - **Term or reference** → Record: defines a domain term, or catalogs something a doc already owns (key bindings, config options).
 
@@ -54,5 +54,5 @@ Every disposition but Keep ends with the comment deleted.
 - **Delete**: nobody needs it, or the code, a name, a test, or git already says it.
 - **Encode**: move the knowledge into code. A name on a function, variable, predicate, or option (`keepOpenOnSubpage`); a type that makes the wrong state unrepresentable; a test named for the constraint, which you break once to watch it go red; an adapter module wrapping a library, with function names that state its quirks (`removeAllShapesDespiteReadonly`); one shared helper replacing a Duplicate; a lint rule replacing a remembered convention.
 - **Redesign**: change the code so the workaround no longer exists: a typed wrapper instead of a cast, a `ResizeObserver` instead of waiting frames, a variant prop instead of class overrides, a fixed type error instead of a suppression.
-- **Record**: move the knowledge to where the repo keeps it. An ADR is the last resort: reach for it only after Encode and Redesign fail, and only for a decision the code must obey, not a description of how the code works; the latter belongs in code. A Fig leaf goes to Redesign even when it reads as a deliberate deviation. The ADR must pass "When to offer an ADR" in the `domain-modeling` skill's `ADR-FORMAT.md`, and its rows name the criteria met and why code cannot carry it. Write it without asking, in that file's format, one ADR per decision however many rows feed it. Source every claim from the comment, the code, or git history, and list unknown alternatives as open questions. A Term goes to the glossary in the same skill's format, a reference to the doc that owns it. Expect few ADRs: most "why" comments are library quirks and belong in code.
+- **Record**: move the knowledge to where the repo keeps it. An ADR is the last resort: reach for it only after Encode and Redesign fail, and only for a decision the code must obey, not a description of how the code works; the latter belongs in code. An Excuse goes to Redesign even when it reads as a deliberate deviation. The ADR must pass "When to offer an ADR" in the `domain-modeling` skill's `ADR-FORMAT.md`, and its rows name the criteria met and why code cannot carry it. Write it without asking, in that file's format, one ADR per decision however many rows feed it. Source every claim from the comment, the code, or git history, and list unknown alternatives as open questions. A Term goes to the glossary in the same skill's format, a reference to the doc that owns it. Expect few ADRs: most "why" comments are library quirks and belong in code.
 - **Keep**: one line saying why, never what, when no name, type, test, redesign, or doc can carry it. The row holds its named bug and why each other disposition fails. Also keep doc comments on a published package's public API that tell consumers something the signature does not, and comments a repo standard requires (report that standard).
